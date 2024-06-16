@@ -3,6 +3,7 @@ import csv
 
 election_data_csv = os.path.join('Resources', 'election_data.csv')
 
+# intitializing empty lists that'll be use to populate data from the file
 candidate = []
 voters = []
 organized_candidate = []
@@ -11,8 +12,10 @@ with open(election_data_csv, 'r') as csv_file:
     
     csv_reader = csv.reader(csv_file, delimiter=',')
     
+    # remove header from the file and store it into a variable
     header = next(csv_reader)
     
+    # loop to get data from file and populate them in new lists
     for row in csv_reader:
         
         voters.append(row[0])
@@ -24,8 +27,8 @@ with open(election_data_csv, 'r') as csv_file:
     # sorts the list of candidates so that there won't be
     # changes in candidate names while looking though the voters
     candidate.sort()
-    index = 0
     
+    index = 0
     # Organized the list of candidate so that we dont have repetition
     # of the same candidate in the list
     while index < len(candidate):
@@ -61,7 +64,7 @@ with open(election_data_csv, 'r') as csv_file:
     D_votes_percent = round((D_votes/total_voters) * 100, 3)
     R_votes_percent = round((R_votes/total_voters) * 100, 3)
 
-    # if statement to find the winner of the votes
+    # if statement to find the winninng candidate
     if C_votes > D_votes and C_votes > R_votes:
         winner = organized_candidate[0]
     elif D_votes > C_votes and D_votes > R_votes:
@@ -82,6 +85,7 @@ print("---------------------------")
 
 output_file = os.path.join('analysis', 'results.csv')
 
+# write the results into an output file
 with open(output_file, 'w') as csvfile:
     
     csv_writer = csv.writer(csvfile, delimiter=',')
