@@ -66,7 +66,8 @@ with open(budget_data_csv, 'r') as csv_file:
     # averaging the changes by the total number of changes
     # rounding the value to two decimal places
     average = round(total/len(average_calc_total),2)
-    
+
+# print to terminal    
 print("Financial Analysis")
 print('-----------------------------')
 print(f"Total Months: {total_months}")

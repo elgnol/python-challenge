@@ -1,102 +1,61 @@
 import os
 import csv
+from collections import Counter
 
 election_data_csv = os.path.join('Resources', 'election_data.csv')
 
-# intitializing empty lists that'll be use to populate data from the file
-candidate = []
-voters = []
-organized_candidate = []
+# Initialize variables
+total_votes = 0
+candidate_votes = Counter()
 
+# Read data and count votes
 with open(election_data_csv, 'r') as csv_file:
-    
     csv_reader = csv.reader(csv_file, delimiter=',')
+    next(csv_reader)  # Skip header
     
-    # remove header from the file and store it into a variable
-    header = next(csv_reader)
-    
-    # loop to get data from file and populate them in new lists
     for row in csv_reader:
-        
-        voters.append(row[0])
-        candidate.append(row[2])
-    
-    # Get number of total voters
-    total_voters = len(voters)
-    
-    # sorts the list of candidates so that there won't be
-    # changes in candidate names while looking though the voters
-    candidate.sort()
-    
-    index = 0
-    # Organized the list of candidate so that we dont have repetition
-    # of the same candidate in the list
-    while index < len(candidate):
-        
-        if index == len(candidate) - 1:
-            organized_candidate.append(candidate[index])
-        elif candidate[index + 1] != candidate[index]:
-            organized_candidate.append(candidate[index])
-        index += 1
-        
-    # identify number of candidates before making the next loop
-    # to calculate total voters per candidate
-    num_of_candidates = len(organized_candidate)
-    
-    # initialize variables to keep count of each candidate votes
-    C_votes = 0 
-    D_votes = 0
-    R_votes = 0      
+        total_votes += 1
+        candidate_votes[row[2]] += 1
 
-    # loop to add up count of votes per candidate
-    # can be change if there are more candidates in the data
-    for i in range(total_voters):
-        
-        if organized_candidate[0] == candidate[i]:
-            C_votes += 1 
-        elif organized_candidate[1] == candidate[i]:
-            D_votes += 1
-        else:
-            R_votes += 1
-    
-    # Get percentages of votes per candidate out of total votes
-    C_votes_percent = round((C_votes/total_voters) * 100, 3)
-    D_votes_percent = round((D_votes/total_voters) * 100, 3)
-    R_votes_percent = round((R_votes/total_voters) * 100, 3)
+# Extract candidate names and vote counts
+candidates = list(candidate_votes.keys())
+votes = list(candidate_votes.values())
 
-    # if statement to find the winninng candidate
-    if C_votes > D_votes and C_votes > R_votes:
-        winner = organized_candidate[0]
-    elif D_votes > C_votes and D_votes > R_votes:
-        winner = organized_candidate[1]
-    else:
-        winner = organized_candidate[2]
-    
-print("Election Results")
-print("---------------------------")
-print(f"Total Votes: {total_voters}")
-print("---------------------------")
-print(f"Charles Casper Stockham: {C_votes_percent}% ({C_votes})")
-print(f"Diana DeGette: {D_votes_percent}% ({D_votes})")
-print(f"Raymon Anthony Doane: {R_votes_percent}% ({R_votes})")
-print("---------------------------")
-print(f"Winner: {winner}")
-print("---------------------------")
+# Calculate percentages
+vote_percentages = [(votes[i] / total_votes) * 100 for i in range(len(candidates))]
+vote_percentages_rounded = [round(percentage, 3) for percentage in vote_percentages]
 
+# Determine the winner
+winner_index = votes.index(max(votes))
+winner = candidates[winner_index]
+
+# Print and write results
 output_file = os.path.join('analysis', 'results.csv')
 
-# write the results into an output file
-with open(output_file, 'w') as csvfile:
-    
-    csv_writer = csv.writer(csvfile, delimiter=',')
+with open(output_file, 'w', newline='') as csvfile:
+    csv_writer = csv.writer(csvfile)
     
     csv_writer.writerow(["Election Results"])
     csv_writer.writerow(["---------------------------"])
-    csv_writer.writerow([f"Total Votes: {total_voters}"])
+    csv_writer.writerow([f"Total Votes: {total_votes}"])
     csv_writer.writerow(["---------------------------"])
-    csv_writer.writerow([f"Charles Casper Stockham: {C_votes_percent}% ({C_votes})"])
-    csv_writer.writerow([f"Diana DeGette: {D_votes_percent}% ({D_votes})"])
-    csv_writer.writerow([f"Raymon Anthony Doane: {R_votes_percent}% ({R_votes})"])
+    
+    for i in range(len(candidates)):
+        csv_writer.writerow([f"{candidates[i]}: {vote_percentages_rounded[i]}% ({votes[i]})"])
+    
     csv_writer.writerow(["---------------------------"])
     csv_writer.writerow([f"Winner: {winner}"])
     csv_writer.writerow(["---------------------------"])
+
+# Print to terminal
+print("Election Results")
+print("---------------------------")
+print(f"Total Votes: {total_votes}")
+print("---------------------------")
+
+for i in range(len(candidates)):
+    print(f"{candidates[i]}: {vote_percentages_rounded[i]}% ({votes[i]})")
+
+print("---------------------------")
+print(f"Winner: {winner}")
+print("---------------------------")
